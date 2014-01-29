@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+#
+# Fetch a list of your active stories on Pivotal Tracker, add them to the
+# template commit message as comments, so it's easy to simply un-comment the
+# story you're commiting for, and in so doing, tag the commit.
+#
+# It requires that you get a Pivotal API token from here:
+# https://www.pivotaltracker.com/profile#api
+#
+# Set the Git config variable, `pivotal.api-token` to that value:
+#
+# $ git config pivotal.api-token "[TOKEN]"
+#
+# Probably this goes without saying, but this will have no effect if you choose
+# a commit workflow which doesn't involve an editor opening with this template
+# file that git creates. Examples would be using `git commit -m ...` or
+# commiting via GitX or similar. If you prefer a `-m` workflow, you can always
+# add `-e` as well, to have git open your editor with the `-m` message as well
+# as the stories commented out.
+
+require 'open-uri'
+require 'json'
+require 'pathname'
+
+MY_WORK_URL = "https://www.pivotaltracker.com/services/v5/my/work?sort=project_name"
+
+def not_in_editor?
+  ENV['GIT_EDITOR'] == ':'
+end
+
+def print_tracker_stories(file)
+  file.puts '# Uncomment one of the lines below to tag this commit to one of' \
+            ' your active Tracker stories'
+
+  pivotal_token = `git config pivotal.api-token`.chomp
+  if pivotal_token.empty?
+    raise 'No Pivotal Tracker API token available.'
+  end
+
+  json = open(MY_WORK_URL, 'X-TrackerToken' => pivotal_token).read
+  raise 'problem fetching stories' if json.empty?
+
+  my_work = JSON.load(json)
+
+  my_work.each do |story|
+    file.puts '#[#%s] %s' % story.values_at('id', 'name')
+
+  end
+rescue => ex
+  file.puts "# Error: Unable to list stories -- #{ex.message}"
+end
+
+message_file, source, ref = ARGV[0, 3]
+
+# source will be one of '', 'merge', 'message', 'commit', or 'squash'
+exit if source == 'merge'
+
+# Commented lines aren't stripped out by default when git doesn't show editor
+exit if not_in_editor?
+
+# We're modifying Git's message, so we must read in the supplied file
+message_file_path = Pathname.new(message_file)
+original = message_file_path.read
+# then split it in half (it's some chunk of commented lines following a
+# possible existing message)
+original_message, original_comments = original.split("\n#", 2)
+
+message_file_path.open('w') do |file|
+  file.puts original_message << "\n\n"
+
+  # then put the stories right at the top, but under the message
+  print_tracker_stories(file)
+
+  if original_comments
+    file.puts "\n\n#" << original_comments
+  end
+end
