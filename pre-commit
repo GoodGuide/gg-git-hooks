@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+exitcode = 0
+
+# Get list of files that were touched (but not those that were deleted)
+touched_files = `git diff-index HEAD --cached --name-only -z --diff-filter=ACRMT`.split("\0")
+
+# Check for missing eof newlines
+touched_files.each do |file|
+  offset = File.size(file) - 1
+  if File.read(file, 1, offset) != "\n"
+    puts "#{file}: missing newline at EOF."
+    exitcode = 1
+  end
+end
+
+# Check for other whitespace errors
+exitcode = 1 unless system('git diff --cached --check')
+
+# Check for binding.pry and other debugging things
+forbidden_pattern = /\#\s*(RBC|RBF)|debugger|\.pry/i
+diff = `git diff-index --cached -p HEAD -G '#{forbidden_pattern.source}' --color`
+if diff.match(/^\+.*#{forbidden_pattern.source}/i)
+  warn 'Error: forbidden string found'
+  puts diff
+  exitcode = 1
+end
+
+unless exitcode == 0
+  warn 'Aborting commit due to failing checks.'
+end
+exit exitcode
