@@ -11,6 +11,22 @@ They're all intended to be project agnostic; configuration happens via Git's con
 
 Each is documented well, so please read the code to understand more.
 
+## Hooks Provided
+
+- *pre-commit* &ndash; Git runs this right before setting
+ up for you to enter your message. This hook can exit 
+ non-zero, which aborts the commit. The implementation 
+ in this repository has a couple checks for white-space
+ errors, as well as a check for accidental committing
+ of a `binding.pry` or `debugger`
+
+- *prepare-commit-msg* &ndash; Git runs this after the 
+  pre-commit hook, and it is able to modify the template
+  message that it gives to your `$GIT_EDITOR`. The 
+  implementation in this repo will augment the default
+  message with a commented-out list of your active stories
+  in Pivotal Tracker. 
+
 ## How to install
 
 In the simple case, just replace your local repo's `.git/hooks` with a clone of this repository:
