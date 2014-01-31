@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-#
 # Fetch a list of your active stories on Pivotal Tracker, add them to the
 # template commit message as comments, so it's easy to simply un-comment the
 # story you're commiting for, and in so doing, tag the commit.
@@ -21,6 +20,7 @@
 require 'open-uri'
 require 'json'
 require 'pathname'
+require File.expand_path('../common', __FILE__)
 
 MY_WORK_URL = "https://www.pivotaltracker.com/services/v5/my/work?sort=project_name"
 
@@ -28,10 +28,23 @@ def not_in_editor?
   ENV['GIT_EDITOR'] == ':'
 end
 
-def print_tracker_stories(file)
-  file.puts '# Uncomment one of the lines below to tag this commit to one of' \
-            ' your active Tracker stories'
+# Get selecta here: https://github.com/garybernhardt/selecta
+def selecta_available?
+  location = `which selecta`.chomp
+  File.executable?(location)
+end
 
+def selecta(list)
+  IO.popen('selecta', 'r+') do |io|
+    io.puts list
+    io.close_write
+    io.gets.chomp
+  end
+rescue Interrupt
+  nil
+end
+
+def tracker_stories
   pivotal_token = `git config pivotal.api-token`.chomp
   if pivotal_token.empty?
     raise 'No Pivotal Tracker API token available.'
@@ -42,12 +55,9 @@ def print_tracker_stories(file)
 
   my_work = JSON.load(json)
 
-  my_work.each do |story|
-    file.puts '#[#%s] %s' % story.values_at('id', 'name')
-
+  my_work.map do |story|
+    '[#%s] %s' % story.values_at('id', 'name')
   end
-rescue => ex
-  file.puts "#   Error! Unable to list stories -- #{ex.message}"
 end
 
 message_file, source, ref = ARGV[0, 3]
@@ -55,8 +65,7 @@ message_file, source, ref = ARGV[0, 3]
 # source will be one of '', 'merge', 'message', 'commit', or 'squash'
 exit if source == 'merge'
 
-# Commented lines aren't stripped out by default when git doesn't show editor
-exit if not_in_editor?
+exit if not_in_editor? and not selecta_available?
 
 # We're modifying Git's message, so we must read in the supplied file
 message_file_path = Pathname.new(message_file)
@@ -65,13 +74,30 @@ original = message_file_path.read
 # possible existing message)
 original_message, original_comments = original.split("\n#", 2)
 
+# Don't bug with Selecta if message already contains story ID
+exit if not_in_editor? and original_message.match(TAG_PATTERN)
+
 message_file_path.open('w') do |file|
   file.puts original_message << "\n\n"
+  if not_in_editor?
+    # Ask for story with interactive selection
+    warn 'Select the story to tag to this commit'
+    file.puts selecta(tracker_stories)
+  else
+    # then put the stories right at the top, but under the message
+    file.puts '# Uncomment one of the lines below to tag this commit to one of' \
+      ' your active Tracker stories'
 
-  # then put the stories right at the top, but under the message
-  print_tracker_stories(file)
+    begin
+      file.puts tracker_stories.map{|story| "##{story}" }
+    rescue => ex
+      file.puts "#   Error! Unable to list stories -- #{ex.message}"
+    end
 
-  if original_comments
-    file.puts "\n\n#" << original_comments
+    if original_comments
+      file.puts "\n\n#" << original_comments
+    end
   end
 end
+
+exit 0
