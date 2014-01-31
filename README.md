@@ -30,10 +30,14 @@ git clone git@github.com:GoodGuide/git-hooks.git .git/hooks
 
 ## Requirements
 
-At least one of the hooks requires the following #! to work:
+- At least one of the hooks requires the following #! to work:
 
-```
-#!/usr/bin/env ruby
-```
+    ```
+    #!/usr/bin/env ruby
+    ```
 
-(This is Ruby 1.9+ compatible code)
+    This is Ruby 1.9+ compatible.
+
+- If you have [Selecta][] available on your PATH, it will be used to offer interactive Command-T/Ctrl-P style selection of a story by name or ID, and will automatically tag the commit with the story chosen.
+
+[Selecta]: https://github.com/garybernhardt/selecta
