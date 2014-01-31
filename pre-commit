@@ -5,6 +5,10 @@ exitcode = 0
 # Get list of files that were touched (but not those that were deleted)
 touched_files = `git diff-index HEAD --cached --name-only -z --diff-filter=ACRMT`.split("\0")
 
+def red(string)
+  "\e[31m#{string}\e[m"
+end
+
 # Check for missing eof newlines
 touched_files.each do |file|
   offset = File.size(file) - 1
@@ -21,12 +25,12 @@ exitcode = 1 unless system('git diff --cached --check')
 forbidden_pattern = /\#\s*(RBC|RBF)|debugger|\.pry/i
 diff = `git diff-index --cached -p HEAD -G '#{forbidden_pattern.source}' --color`
 if diff.match(/^\+.*#{forbidden_pattern.source}/i)
-  warn 'Error: forbidden string found'
+  warn red('Error: forbidden string found')
   puts diff
   exitcode = 1
 end
 
 unless exitcode == 0
-  warn 'Aborting commit due to failing checks.'
+  warn red('Aborting commit due to failing checks.')
 end
 exit exitcode

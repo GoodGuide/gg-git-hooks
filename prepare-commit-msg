@@ -47,7 +47,7 @@ def print_tracker_stories(file)
 
   end
 rescue => ex
-  file.puts "# Error: Unable to list stories -- #{ex.message}"
+  file.puts "#   Error! Unable to list stories -- #{ex.message}"
 end
 
 message_file, source, ref = ARGV[0, 3]
