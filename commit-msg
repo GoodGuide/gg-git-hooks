@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+# This verifies the commit message contains a Pivotal Tracker story tag in the
+# following format:
+TAG_PATTERN = /
+  \[
+    (?:
+      (?:complete[sd]?|(?:finish|fix)(?:e[sd])?)\s+\#\d{4,}
+    |
+      \#\s*no[ _-]?(?:tracker|story)
+    )
+  \]
+/ix
+
+message_file = ARGV[0]
+
+original = File.read(message_file)
+
+def red(string)
+  "\e[31m#{string}\e[m"
+end
+
+unless original.match(TAG_PATTERN)
+  warn red('Error: Commit message is missing required PivotalTracker story tag!')
+  exit 1
+end
