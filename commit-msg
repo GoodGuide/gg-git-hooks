@@ -1,18 +1,7 @@
 #!/usr/bin/env ruby
+# This verifies the commit message contains a Pivotal Tracker story tag
 
-# This verifies the commit message contains a Pivotal Tracker story tag in the
-# following format:
-TAG_PATTERN = /
-  \[
-    (?:
-      (?:
-       (?:complete[sd]?|(?:finish|fix)(?:e[sd])?)\s+
-      )?\#\d{4,}
-    |
-      \#\s*no[ _-]?(?:tracker|story)
-    )
-  \]
-/ix
+require File.expand_path('../common', __FILE__)
 
 message_file = ARGV[0]
 
