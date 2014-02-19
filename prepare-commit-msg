@@ -81,8 +81,15 @@ message_file_path.open('w') do |file|
   file.puts original_message << "\n\n"
   if not_in_editor?
     # Ask for story with interactive selection
-    warn 'Select the story to tag to this commit'
-    file.puts selecta(tracker_stories)
+    begin
+      stories = tracker_stories
+      stories << '[no story]'
+
+      warn 'Select the story to tag to this commit'
+      file.puts selecta(stories)
+    rescue => ex
+      warn "Unable to get list of stories -- #{ex.message}"
+    end
   else
     # then put the stories right at the top, but under the message
     file.puts '# Uncomment one of the lines below to tag this commit to one of' \
@@ -93,6 +100,8 @@ message_file_path.open('w') do |file|
     rescue => ex
       file.puts "#   Error! Unable to list stories -- #{ex.message}"
     end
+
+    file.puts '#[no story]'
 
     if original_comments
       file.puts "\n\n#" << original_comments
