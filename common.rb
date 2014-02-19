@@ -6,7 +6,7 @@ TAG_PATTERN = /
        (?:complete[sd]?|(?:finish|fix)(?:e[sd])?)\s+
       )?\#\d{4,}
     |
-      \#\s*no[ _-]?(?:tracker|story)
+      no[ ]story
     )
   \]
 /ix
