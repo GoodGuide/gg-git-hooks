@@ -11,16 +11,22 @@ end
 
 # Check for missing eof newlines
 touched_files.each do |file|
-  file_size = File.size(file)
-  next unless file_size > 0
+  begin
+    next unless File.file?(file)
 
-  file_type = `file --mime --brief #{file}`.chomp
-  next unless file_type.match(%r[\Atext/])
+    file_size = File.size(file)
+    next unless file_size > 0
 
-  offset = file_size - 1
-  if File.read(file, 1, offset) != "\n"
-    puts "#{file}: missing newline at EOF."
-    exitcode = 1
+    file_type = `file --mime --brief #{file}`.chomp
+    next unless file_type.match(%r[\Atext/])
+
+    offset = file_size - 1
+    if File.read(file, 1, offset) != "\n"
+      puts "#{file}: missing newline at EOF."
+      exitcode = 1
+    end
+  rescue => ex
+    warn red("Exception while checking file #{file}: #{ex.class.name} - #{ex.message}")
   end
 end
 
