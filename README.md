@@ -31,6 +31,7 @@ ln -s ~/.git-hooks .git/hooks
 
 ## Requirements
 
+- Some features lean on the newest version of Git: 1.9.0; you can update to this version with Homebrew on OSX)
 - You'll need to set up your Pivotal API token in git config. [Get your API Token here][pivotal-account-settings], then:
 
     ```
