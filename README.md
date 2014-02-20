@@ -35,7 +35,7 @@ ln -s ~/.git-hooks .git/hooks
 - You'll need to set up your Pivotal API token in git config. [Get your API Token here][pivotal-account-settings], then:
 
     ```
-    $ git config pivotal.api_token [YOUR_TOKEN]
+    $ git config pivotal.api-token [YOUR_TOKEN]
     ```
 
     You probably want to use the `--global` option as well, which sets the value in your `~/.gitconfig` as opposed to the current repository's `.git/config`.
