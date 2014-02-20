@@ -31,14 +31,17 @@ ln -s ~/.git-hooks .git/hooks
 
 ## Requirements
 
-- At least one of the hooks requires the following #! to work:
+- You'll need to set up your Pivotal API token in git config. [Get your API Token here][pivotal-account-settings], then:
 
     ```
-    #!/usr/bin/env ruby
+    $ git config pivotal.api_token [YOUR_TOKEN]
     ```
 
-    This is Ruby 1.9+ compatible.
+    You probably want to use the `--global` option as well, which sets the value in your `~/.gitconfig` as opposed to the current repository's `.git/config`.
 
-- If you have [Selecta][] available on your PATH, it will be used to offer interactive Command-T/Ctrl-P style selection of a story by name or ID, and will automatically tag the commit with the story chosen.
+- Ruby 1.9+ should be available.
 
+- If you have [Selecta][] available on your PATH, it will be used to offer incremental search of an available story by name or ID, and will automatically tag the commit with the story chosen.
+
+[pivotal-account-settings]: https://www.pivotaltracker.com/profile#api
 [Selecta]: https://github.com/garybernhardt/selecta
