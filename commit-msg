@@ -70,7 +70,11 @@ original = original.gsub(/^\s*#.*$/, '').squeeze("\n")
 exit 0 if original.gsub(/\s+/, '').empty?
 
 unless original.match(TAG_PATTERN)
-  error unless git_version_1_9?
+  unless git_version_1_9?
+    warn 'Please update your git to >= 1.9'
+    error
+  end
+
 
   File.open(MESSAGE_FILE, 'w') do |file|
     file.puts original
