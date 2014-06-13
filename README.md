@@ -24,9 +24,8 @@ Each is documented well, so please read the code to understand more.
 In the simple case, just clone this repo to a shared location, then replace your local repo's `.git/hooks` with a symlink to this repo:
 
 ```shell
-[ -d ~/.git-hooks ] || git clone git@github.com:GoodGuide/git-hooks.git ~/.git-hooks
-rm -rf .git/hooks
-ln -s ~/.git-hooks .git/hooks
+project_repo$ [ -d ~/.git-hooks ] || git clone git@github.com:GoodGuide/git-hooks.git ~/.git-hooks
+project_repo$ ~/.git-hooks/install.rb
 ```
 
 ## Requirements
