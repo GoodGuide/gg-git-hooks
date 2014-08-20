@@ -61,6 +61,9 @@ PIVOTAL_TOKEN = `git config pivotal.api-token`.chomp
 
 MESSAGE_FILE = ARGV[0]
 
+# Skip for merges
+exit 0 if File.exist?('.git/MERGE_HEAD')
+
 # read in message, dropping comments and possible verbose-commit diff block
 original = File.read(MESSAGE_FILE)
 original, _, _ = original.partition(/------- >8 -------/)
