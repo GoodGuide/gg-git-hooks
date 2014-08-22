@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# This verifies the commit message contains a Pivotal Tracker story tag
+
+require File.expand_path('../common', __FILE__)
+
+include Colors
+
+STDIN.reopen('/dev/tty', 'r')
+
+def git_version_1_9?
+  `git --version`.match(/\d+\.\d+/)[0].to_f >= 1.9
+end
+
+def tracker_stories
+  if TRACKER_STORIES_CACHE_FILEPATH.readable?
+    stories = TRACKER_STORIES_CACHE_FILEPATH.readlines.map(&:chomp)
+    TRACKER_STORIES_CACHE_FILEPATH.unlink
+    return stories
+  end
+
+  print "Fetching tracker stories..."
+  stories = PivotalAPI.new(PIVOTAL_TOKEN).my_active_stories
+  print "\e[2k\r"
+
+  stories.map do |story|
+    '[#%s] %s' % story.values_at('id', 'name')
+  end
+end
+
+def ask_for_story_id(stories_available)
+  warn "Type a story ID. The available stories are:"
+  stories_available.each do |story|
+    warn "  " << story
+  end
+
+  print "Enter a story ID or 'no story'> "
+  case (input = STDIN.gets.chomp)
+  when /no\s*story/
+    '[no story]'
+  when /[1-9]/
+    id = input.gsub(/\D+/, '')
+    "[##{id}]"
+  end
+end
+
+def handle_missing_tag(io)
+  stories = tracker_stories << '[no story]'
+  warn red('Commit message requires a Pivotal Tracker Story ID')
+  story = Selecta.available? ? Selecta.prompt(stories) : ask_for_story_id(stories)
+  return false unless story
+  io.puts "\n\n#{story}"
+  return true
+end
+
+def error
+  warn red('Commit message is missing required PivotalTracker story tag!')
+  exit 1
+end
+
+PIVOTAL_TOKEN = `git config pivotal.api-token`.chomp
+
+MESSAGE_FILE = ARGV[0]
+
+# Skip for merges
+exit 0 if File.exist?('.git/MERGE_HEAD')
+
+# read in message, dropping comments and possible verbose-commit diff block
+original = File.read(MESSAGE_FILE)
+original, _, _ = original.partition(/------- >8 -------/)
+original = original.gsub(/^\s*#.*$/, '').squeeze("\n")
+
+#exit 0 so git can abort due to empty message
+exit 0 if original.gsub(/\s+/, '').empty?
+
+unless original.match(TAG_PATTERN)
+  unless git_version_1_9?
+    warn 'Please update your git to >= 1.9'
+    error
+  end
+
+
+  File.open(MESSAGE_FILE, 'w') do |file|
+    file.puts original
+    error unless handle_missing_tag(file)
+  end
+end

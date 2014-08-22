@@ -1,1 +1,4 @@
 /.cache
+
+# compiled local binary
+/goodguide-git-hooks

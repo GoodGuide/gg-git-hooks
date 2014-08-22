@@ -1,0 +1,103 @@
+#!/usr/bin/env ruby
+# Fetch a list of your active stories on Pivotal Tracker, add them to the
+# template commit message as comments, so it's easy to simply un-comment the
+# story you're commiting for, and in so doing, tag the commit.
+#
+# It requires that you get a Pivotal API token from here:
+# https://www.pivotaltracker.com/profile#api
+#
+# Set the Git config variable, `pivotal.api-token` to that value:
+#
+# $ git config pivotal.api-token "[TOKEN]"
+#
+# Probably this goes without saying, but this will have no effect if you choose
+# a commit workflow which doesn't involve an editor opening with this template
+# file that git creates. Examples would be using `git commit -m ...` or
+# commiting via GitX or similar. If you prefer a `-m` workflow, you can always
+# add `-e` as well, to have git open your editor with the `-m` message as well
+# as the stories commented out.
+
+require 'pathname'
+require File.expand_path('../common', __FILE__)
+
+def not_in_editor?
+  ENV['GIT_EDITOR'] == ':'
+end
+
+def tracker_stories
+  print "Fetching tracker stories..."
+  stories = PivotalAPI.new(PIVOTAL_TOKEN).my_active_stories
+  print "\e[2k\r"
+
+  stories.map! do |story|
+    '[#%s] %s' % story.values_at('id', 'name')
+  end
+
+  unless TRACKER_STORIES_CACHE_FILEPATH.parent.exist?
+    TRACKER_STORIES_CACHE_FILEPATH.parent.mkdir
+  end
+  TRACKER_STORIES_CACHE_FILEPATH.open('w'){ |f| f.puts stories }
+
+  return stories
+end
+
+MESSAGE_FILE, SOURCE, REF = ARGV[0, 3]
+
+PIVOTAL_TOKEN = `git config pivotal.api-token`.chomp
+
+STDOUT.sync = true
+
+# source will be one of '', 'merge', 'message', 'commit', or 'squash'
+exit if SOURCE == 'merge'
+
+exit if not_in_editor? #and not selecta_available?
+
+# We're modifying Git's message, so we must read in the supplied file
+message_file_path = Pathname.new(MESSAGE_FILE)
+original = message_file_path.read
+# then split it in half (it's some chunk of commented lines following a
+# possible existing message)
+original_message, original_comments = original.split("\n#", 2)
+
+# Don't bug with Selecta if message already contains story ID
+# exit if not_in_editor? and original_message.match(TAG_PATTERN)
+
+message_file_path.open('w') do |file|
+  file.puts original_message
+  file.puts "\n\n"
+  if not_in_editor?
+    # # Ask for story with interactive selection
+    # begin
+    #   stories = tracker_stories
+    #   stories << '[no story]'
+
+    #   warn 'Select the story to tag to this commit'
+    #   file.puts selecta(stories)
+    # rescue => ex
+    #   warn "Unable to get list of stories -- #{ex.message}"
+    # end
+  else
+    # then put the stories right at the top, but under the message
+    file.puts '# Uncomment one of the lines below to tag this commit to one of' \
+      ' your active Tracker stories'
+
+    begin
+      file.puts tracker_stories.map{|story| "##{story}" }
+    rescue => ex
+      file.puts '#'
+      file.puts "#   Error! Unable to list stories -- #{ex.class.name}: #{ex.message}"
+      ex.backtrace.each do |line|
+        file.puts "#      #{line}"
+      end
+      file.puts '#'
+    end
+
+    file.puts '#[no story]'
+
+    if original_comments
+      file.puts "\n\n#" << original_comments
+    end
+  end
+end
+
+exit 0
