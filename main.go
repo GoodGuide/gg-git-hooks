@@ -1,49 +1,61 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/GoodGuide/goodguide-git-hooks/githooks"
+	kingpin "gopkg.in/alecthomas/kingpin.v1"
 )
 
-// Prints a help message instructing with the available commands
-func printHelp() {
-	fmt.Println("Don't know what you mean by:", os.Args)
-	fmt.Println("Usage:", os.Args[0], "COMMAND [ARG...]")
-	fmt.Println("  Commands: commit-msg, prepare-commit-msg, pre-commit")
-	os.Exit(0)
+// Installs small shell scripts for all the git hooks in the .git/hooks
+// directory for the git repo in which this command is run
+func install() {
 }
 
+var (
+	debug *bool
+)
+
 func main() {
-	if len(os.Args) < 2 {
-		printHelp()
-	}
-	switch os.Args[1] {
+	debug = kingpin.Flag("debug", "Show extra info").Bool()
+
+	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
+
+	cmdCommitMsg := kingpin.Command("commit-msg", "Checks the commit message for PivotalTracker story ID, bad whitespace, syntax, etc.")
+	messageFilepath := cmdCommitMsg.Arg("message_path", "Path to the file that holds the proposed commit log message").
+		Required().
+		ExistingFile()
+
+	cmdPrepareCommitMsg := kingpin.Command("prepare-commit-msg", "Augment the default commit message template with commented-out PivotalTracker Story IDs to make it easy to tag commits")
+	cmdPrepareCommitMsg.Arg("message_path", "Path to the file which will be sent to the editor and ultimately become the commit log message").
+		Required().
+		ExistingFileVar(messageFilepath)
+
+	messageSource := cmdPrepareCommitMsg.Arg("source", "Source of the commit message going into this hook").
+		Enum("message", "merge", "commit", "squash", "template")
+
+	messageSourceCommit := cmdPrepareCommitMsg.Arg("commit_sha", "If source is 'commit', this is the SHA1 of the source commit").
+		String()
+
+	kingpin.Command("pre-commit", "Verifies the files about to be committed follow certain guidelines regarding e.g. whitespace, syntax, etc.")
+
+	// no-ops:
+	kingpin.Command("applypatch-msg", "no-op")
+	kingpin.Command("post-update", "no-op")
+	kingpin.Command("pre-applypatch", "no-op")
+	kingpin.Command("pre-push", "no-op")
+	kingpin.Command("pre-rebase", "no-op")
+	kingpin.Command("update", "no-op")
+
+	switch kingpin.Parse() {
+	case "install":
+		install()
+
 	case "commit-msg":
-		if len(os.Args) < 3 {
-			printHelp()
-		}
-		githooks.CommitMsg(os.Args[2])
+		githooks.CommitMsg(*messageFilepath)
 
 	case "prepare-commit-msg":
-		var commitSha string
-		var source string
-		if len(os.Args) < 3 {
-			printHelp()
-		}
-		if len(os.Args) >= 4 {
-			source = os.Args[3]
-		}
-		if len(os.Args) >= 5 {
-			commitSha = os.Args[4]
-		}
-		githooks.PrepareCommitMsg(os.Args[2], source, commitSha)
+		githooks.PrepareCommitMsg(*messageFilepath, *messageSource, *messageSourceCommit)
 
 	case "pre-commit":
 		githooks.PreCommit()
-
-	default:
-		printHelp()
 	}
 }
