@@ -11,11 +11,11 @@ func install() {
 }
 
 var (
-	debug *bool
+	config githooks.Config
 )
 
 func main() {
-	debug = kingpin.Flag("debug", "Show extra info").Bool()
+	kingpin.Flag("verbose", "Show extra info").BoolVar(&config.Verbose)
 
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
 
@@ -37,13 +37,16 @@ func main() {
 
 	kingpin.Command("pre-commit", "Verifies the files about to be committed follow certain guidelines regarding e.g. whitespace, syntax, etc.")
 
+	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
+
+	kingpin.Command("update-pivotal-stories", "Update cache of pivotal stories manually")
+
 	// no-ops:
 	kingpin.Command("applypatch-msg", "no-op")
 	kingpin.Command("post-update", "no-op")
 	kingpin.Command("pre-applypatch", "no-op")
 	kingpin.Command("pre-push", "no-op")
 	kingpin.Command("pre-rebase", "no-op")
-	kingpin.Command("update", "no-op")
 
 	switch kingpin.Parse() {
 	case "install":
@@ -53,9 +56,20 @@ func main() {
 		githooks.CommitMsg(*messageFilepath)
 
 	case "prepare-commit-msg":
-		githooks.PrepareCommitMsg(*messageFilepath, *messageSource, *messageSourceCommit)
+		config.StoriesCachePath = PivotalStoriesCacheFilePath()
+
+		githooks.PrepareCommitMsg(*messageFilepath, *messageSource, *messageSourceCommit, config)
 
 	case "pre-commit":
 		githooks.PreCommit()
+
+	case "self-update":
+		// selfUpdate()
+
+	case "update-pivotal-stories":
+		config.APIToken = GetAPIToken()
+		config.StoriesCachePath = PivotalStoriesCacheFilePath()
+
+		githooks.UpdatePivotalStories(config)
 	}
 }
