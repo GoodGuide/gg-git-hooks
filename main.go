@@ -1,13 +1,62 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/GoodGuide/goodguide-git-hooks/git"
 	"github.com/GoodGuide/goodguide-git-hooks/githooks"
 	kingpin "gopkg.in/alecthomas/kingpin.v1"
 )
 
-// Installs small shell scripts for all the git hooks in the .git/hooks
-// directory for the git repo in which this command is run
-func install() {
+// Installs small shell scripts for all the git hooks in the .git/hooks directory for the git repo in which this command is run.
+// TODO: Make this smarter about offering to overwrite an existing file when it already has the exact contents we want to write
+func InstallHookShims(hooksDir string, hooks []string) {
+	for _, hook := range hooks {
+		var confirmed bool
+
+		hookPath := filepath.Join(hooksDir, hook)
+
+		stat, err := os.Stat(hookPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				confirmed = true
+			} else {
+				log.Printf("[%s] Error while installing: %s\n", hook, err)
+				continue
+			}
+		}
+
+		if !confirmed {
+			if !stat.Mode().IsRegular() {
+				log.Printf("[%s] ERROR: File already exists but is not a regular file!\n", hook)
+				continue
+			}
+			confirmed, err = confirm(fmt.Sprintf("[%s] File already exists. Overwrite?", hook))
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		if confirmed {
+			log.Printf("[%s] installing shim\n", hook)
+			file, err := os.Create(hookPath)
+			if err != nil {
+				log.Printf("[%s] Error while opening file: %s\n", hook, err)
+				continue
+			}
+			defer file.Close()
+
+			if err := writeHookShim(file, hook); err != nil {
+				log.Printf("[%s] Error while writing file: %s\n", hook, err)
+			}
+			if err := file.Chmod(0755); err != nil {
+				log.Printf("[%s] Error while setting file permissions: %s\n", hook, err)
+			}
+		}
+	}
 }
 
 func SelfUpdate() {
@@ -18,8 +67,18 @@ var (
 	config githooks.Config
 )
 
-func main() {
+var HOOKS = [8]string{
+	"commit-msg",
+	"prepare-commit-msg",
+	"pre-commit",
+	"applypatch-msg",
+	"post-update",
+	"pre-applypatch",
+	"pre-push",
+	"pre-rebase",
+}
 
+func main() {
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
 
 	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
@@ -59,7 +118,16 @@ func main() {
 
 	switch kingpin.Parse() {
 	case "install":
-		install()
+		gitDir, err := git.GitDir()
+		if err != nil {
+			log.Fatal("Error while installing:\n", err)
+		}
+		hooksDir := filepath.Join(gitDir, "hooks")
+		if err := os.MkdirAll(hooksDir, 0775); err != nil {
+			log.Fatalf("Error while creating hooks directory: %s\n", err)
+		}
+
+		InstallHookShims(hooksDir, HOOKS[:])
 
 	case "self-update":
 		SelfUpdate()
