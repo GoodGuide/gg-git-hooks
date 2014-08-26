@@ -41,11 +41,17 @@ func main() {
 	kingpin.Command("update-pivotal-stories", "Update cache of pivotal stories manually")
 
 	// no-ops:
-	kingpin.Command("applypatch-msg", "no-op")
-	kingpin.Command("post-update", "no-op")
-	kingpin.Command("pre-applypatch", "no-op")
-	kingpin.Command("pre-push", "no-op")
-	kingpin.Command("pre-rebase", "no-op")
+	var cmd *kingpin.CmdClause
+	cmd = kingpin.Command("applypatch-msg", "no-op")
+	cmd.Arg("args", "").Strings()
+	cmd = kingpin.Command("post-update", "no-op")
+	cmd.Arg("args", "").Strings()
+	cmd = kingpin.Command("pre-applypatch", "no-op")
+	cmd.Arg("args", "").Strings()
+	cmd = kingpin.Command("pre-push", "no-op")
+	cmd.Arg("args", "").Strings()
+	cmd = kingpin.Command("pre-rebase", "no-op")
+	cmd.Arg("args", "").Strings()
 
 	switch kingpin.Parse() {
 	case "install":
