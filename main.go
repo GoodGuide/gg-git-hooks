@@ -15,7 +15,6 @@ var (
 )
 
 func main() {
-	kingpin.Flag("verbose", "Show extra info").BoolVar(&config.Verbose)
 
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
 
