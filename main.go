@@ -11,6 +11,23 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v1"
 )
 
+var (
+	config              githooks.Config
+	messageFilepath     *string = new(string)
+	messageSourceCommit *string = new(string)
+	messageSource       *string = new(string)
+	HOOKS                       = [8]string{
+		"commit-msg",
+		"prepare-commit-msg",
+		"pre-commit",
+		"applypatch-msg",
+		"post-update",
+		"pre-applypatch",
+		"pre-push",
+		"pre-rebase",
+	}
+)
+
 // Installs small shell scripts for all the git hooks in the .git/hooks directory for the git repo in which this command is run.
 // TODO: Make this smarter about offering to overwrite an existing file when it already has the exact contents we want to write
 func InstallHookShims(hooksDir string, hooks []string) {
@@ -64,48 +81,33 @@ func SelfUpdate() {
 	fmt.Println("  go get -u github.com/goodguide/goodguide-git-hooks")
 }
 
-var (
-	config githooks.Config
-)
+func initKingpin() {
+	var cmd *kingpin.CmdClause
 
-var HOOKS = [8]string{
-	"commit-msg",
-	"prepare-commit-msg",
-	"pre-commit",
-	"applypatch-msg",
-	"post-update",
-	"pre-applypatch",
-	"pre-push",
-	"pre-rebase",
-}
-
-func main() {
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
 
 	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
 
 	kingpin.Command("update-pivotal-stories", "Update cache of pivotal stories manually")
 
-	cmdCommitMsg := kingpin.Command("commit-msg", "Checks the commit message for PivotalTracker story ID, bad whitespace, syntax, etc.")
-	messageFilepath := cmdCommitMsg.Arg("message_path", "Path to the file that holds the proposed commit log message").
-		Required().
-		ExistingFile()
+	// git hooks commands:
+	kingpin.Command("pre-commit", "Verifies the files about to be committed follow certain guidelines regarding e.g. whitespace, syntax, etc.")
 
-	cmdPrepareCommitMsg := kingpin.Command("prepare-commit-msg", "Augment the default commit message template with commented-out PivotalTracker Story IDs to make it easy to tag commits")
-	cmdPrepareCommitMsg.Arg("message_path", "Path to the file which will be sent to the editor and ultimately become the commit log message").
+	cmd = kingpin.Command("prepare-commit-msg", "Augment the default commit message template with commented-out PivotalTracker Story IDs to make it easy to tag commits")
+	cmd.Arg("message_path", "Path to the file which will be sent to the editor and ultimately become the commit log message").
+		Required().
+		ExistingFileVar(messageFilepath)
+	cmd.Arg("source", "Source of the commit message going into this hook").
+		EnumVar(&messageSource, "message", "merge", "commit", "squash", "template")
+	cmd.Arg("commit_sha", "If source is 'commit', this is the SHA1 of the source commit").
+		StringVar(messageSourceCommit)
+
+	cmd = kingpin.Command("commit-msg", "Checks the commit message for PivotalTracker story ID, bad whitespace, syntax, etc.")
+	cmd.Arg("message_path", "Path to the file that holds the proposed commit log message").
 		Required().
 		ExistingFileVar(messageFilepath)
 
-	messageSource := cmdPrepareCommitMsg.Arg("source", "Source of the commit message going into this hook").
-		Enum("message", "merge", "commit", "squash", "template")
-
-	messageSourceCommit := cmdPrepareCommitMsg.Arg("commit_sha", "If source is 'commit', this is the SHA1 of the source commit").
-		String()
-
-	kingpin.Command("pre-commit", "Verifies the files about to be committed follow certain guidelines regarding e.g. whitespace, syntax, etc.")
-
 	// no-ops:
-	var cmd *kingpin.CmdClause
 	cmd = kingpin.Command("applypatch-msg", "no-op")
 	cmd.Arg("args", "").Strings()
 	cmd = kingpin.Command("post-update", "no-op")
@@ -116,6 +118,10 @@ func main() {
 	cmd.Arg("args", "").Strings()
 	cmd = kingpin.Command("pre-rebase", "no-op")
 	cmd.Arg("args", "").Strings()
+}
+
+func main() {
+	initKingpin()
 
 	switch kingpin.Parse() {
 	case "install":
