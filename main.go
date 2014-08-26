@@ -145,15 +145,15 @@ func main() {
 
 		githooks.UpdatePivotalStories(config)
 
-	case "commit-msg":
-		githooks.CommitMsg(*messageFilepath)
+	case "pre-commit":
+		githooks.PreCommit()
 
 	case "prepare-commit-msg":
 		config.StoriesCachePath = PivotalStoriesCacheFilePath()
 
 		githooks.PrepareCommitMsg(*messageFilepath, *messageSource, *messageSourceCommit, config)
 
-	case "pre-commit":
-		githooks.PreCommit()
+	case "commit-msg":
+		githooks.CommitMsg(*messageFilepath)
 	}
 }
