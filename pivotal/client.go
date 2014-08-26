@@ -3,8 +3,10 @@ package pivotal
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"sync"
 )
 
 const BASE_URL string = "https://www.pivotaltracker.com/services/v5/"
@@ -40,19 +42,58 @@ type Story struct {
 func MyStories(apiToken string) (stories []Story, err error) {
 	c := NewClient(apiToken)
 	me, err := c.Me()
-	params := make(paramset)
-	// params["filter"] = "state:started mywork:" + me.Username
-	params["filter"] = "mywork:" + me.Username
 
-	// TODO: make this concurrent
-	for _, proj := range me.Projects {
-		projStories, err := c.ProjectStories(proj.ID, params)
-		if err != nil {
-			return nil, err
+	params := paramset{
+		"filter": "mywork:" + me.Username,
+	}
+
+	results := make(chan Story)
+	errors := make(chan error)
+
+	var hadFailure bool
+	var cwg = sync.WaitGroup{}
+
+	cwg.Add(1)
+	go func() {
+		for err := range errors {
+			log.Printf("Error: %s\n", err)
+			hadFailure = true
 		}
-		for _, s := range projStories {
+
+		cwg.Done()
+	}()
+
+	cwg.Add(1)
+	go func() {
+		for s := range results {
 			stories = append(stories, s)
 		}
+		cwg.Done()
+	}()
+
+	var pwg = sync.WaitGroup{}
+	for _, proj := range me.Projects {
+		pwg.Add(1)
+		go func(proj Project) {
+			// log.Printf("Fetching your stories for %s\n", proj.Name)
+			projStories, err := c.ProjectStories(proj.ID, params)
+			if err != nil {
+				errors <- err
+			} else {
+				for _, s := range projStories {
+					results <- s
+				}
+			}
+			pwg.Done()
+		}(proj)
+	}
+	pwg.Wait()
+	close(results)
+	close(errors)
+	cwg.Wait()
+
+	if hadFailure {
+		err = fmt.Errorf("ERROR: not successful getting all stories")
 	}
 
 	return
@@ -90,6 +131,7 @@ func (c *Client) apiRequest(path string, params paramset) (resp *http.Response, 
 	}
 	req.Header.Add("X-TrackerToken", c.Token)
 
+	// log.Printf("[pivotal-tracker] GET %s\n", req.URL)
 	resp, err = c.httpClient.Do(req)
 	if err != nil {
 		return
