@@ -10,6 +10,10 @@ import (
 func install() {
 }
 
+func SelfUpdate() {
+	fmt.Println("The self-update feature doesn't exist yet. Please check github for latest binary release, or try\n  go get -u github.com/goodguide/goodguide-git-hooks")
+}
+
 var (
 	config githooks.Config
 )
@@ -17,6 +21,10 @@ var (
 func main() {
 
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
+
+	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
+
+	kingpin.Command("update-pivotal-stories", "Update cache of pivotal stories manually")
 
 	cmdCommitMsg := kingpin.Command("commit-msg", "Checks the commit message for PivotalTracker story ID, bad whitespace, syntax, etc.")
 	messageFilepath := cmdCommitMsg.Arg("message_path", "Path to the file that holds the proposed commit log message").
@@ -36,10 +44,6 @@ func main() {
 
 	kingpin.Command("pre-commit", "Verifies the files about to be committed follow certain guidelines regarding e.g. whitespace, syntax, etc.")
 
-	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
-
-	kingpin.Command("update-pivotal-stories", "Update cache of pivotal stories manually")
-
 	// no-ops:
 	var cmd *kingpin.CmdClause
 	cmd = kingpin.Command("applypatch-msg", "no-op")
@@ -57,6 +61,15 @@ func main() {
 	case "install":
 		install()
 
+	case "self-update":
+		SelfUpdate()
+
+	case "update-pivotal-stories":
+		config.APIToken = GetAPIToken()
+		config.StoriesCachePath = PivotalStoriesCacheFilePath()
+
+		githooks.UpdatePivotalStories(config)
+
 	case "commit-msg":
 		githooks.CommitMsg(*messageFilepath)
 
@@ -67,14 +80,5 @@ func main() {
 
 	case "pre-commit":
 		githooks.PreCommit()
-
-	case "self-update":
-		// selfUpdate()
-
-	case "update-pivotal-stories":
-		config.APIToken = GetAPIToken()
-		config.StoriesCachePath = PivotalStoriesCacheFilePath()
-
-		githooks.UpdatePivotalStories(config)
 	}
 }
