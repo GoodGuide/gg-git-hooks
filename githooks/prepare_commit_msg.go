@@ -10,24 +10,24 @@ import (
 )
 
 func WritePivotalStories(w io.Writer, config *Config) {
-	w.Write([]byte("\n# Uncomment one of your active stories, below:\n"))
+	fmt.Fprintln(w, "\n# Uncomment one of your active stories, below:")
 
 	stories, err := ioutil.ReadFile(config.StoriesCachePath)
 	if err == nil {
 		w.Write(stories)
 	} else {
-		w.Write([]byte("# There was a problem getting your Tracker Stories from ~/.gg-git-hooks-cache\n# To (re)create/update the file:\n#\n#   goodguide-git-hooks update-stories\n#\n"))
+		fmt.Fprintln(w, "# There was a problem getting your Tracker Stories from ~/.gg-git-hooks-cache")
+		fmt.Fprintln(w, "# To (re)create/update the file:\n#")
+		fmt.Fprintln(w, "#   goodguide-git-hooks update-stories\n#")
 	}
 
-	w.Write([]byte("#[no story]\n\n\n"))
+	fmt.Fprintln(w, "#[no story]\n\n")
 }
 
 // Runs just before opening the editor to get a message from the user. In this
 // case, it fetches pivotal tracker stories and modifies the message template to
 // include the story ids as commented-out lines
 func PrepareCommitMsg(msgFilepath string, source string, commitSha string, config Config) {
-	fmt.Println("prepare-commit-msg", msgFilepath, source, commitSha)
-
 	if source == "merge" {
 		return
 	}

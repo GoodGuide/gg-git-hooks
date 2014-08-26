@@ -23,4 +23,6 @@ func UpdatePivotalStories(config Config) {
 	for _, story := range stories {
 		fmt.Fprintf(file, "#[#%d] %s\n", story.ID, story.Name)
 	}
+
+	log.Printf("Wrote stories cache to %s\n", file.Name())
 }
