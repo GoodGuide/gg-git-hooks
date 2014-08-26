@@ -60,7 +60,8 @@ func InstallHookShims(hooksDir string, hooks []string) {
 }
 
 func SelfUpdate() {
-	fmt.Println("The self-update feature doesn't exist yet. Please check github for latest binary release, or try\n  go get -u github.com/goodguide/goodguide-git-hooks")
+	fmt.Println("The self-update feature doesn't exist yet. Please check github for latest binary release, or try")
+	fmt.Println("  go get -u github.com/goodguide/goodguide-git-hooks")
 }
 
 var (
