@@ -43,7 +43,6 @@ elsif symlink_path.directory? and any_not_sample?(symlink_path.entries)
   warn ".git/hooks is a directory and has non-sample hooks installed already. Aborting!"
   exit 1
 
-
 elsif symlink_path.exist? and !symlink_path.symlink? and !symlink_path.directory?
   warn ".git/hooks exists and isn't a symlink or directory. Aborting!"
   exit 1

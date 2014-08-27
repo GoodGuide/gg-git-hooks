@@ -1,1 +1,17 @@
 /.cache
+
+# compiled local binary
+/goodguide-git-hooks
+/dist/
+
+# in case a symlink for .git/hooks exists to this repo, as was
+# suggested in the previous version, ignore the shims it will create
+# here:
+/applypatch-msg
+/commit-msg
+/post-update
+/pre-applypatch
+/pre-commit
+/pre-push
+/pre-rebase
+/prepare-commit-msg
