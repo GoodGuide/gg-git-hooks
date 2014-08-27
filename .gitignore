@@ -2,6 +2,7 @@
 
 # compiled local binary
 /goodguide-git-hooks
+/goodguide-git-hooks_*
 
 # in case a symlink for .git/hooks exists to this repo, as was
 # suggested in the previous version, ignore the shims it will create
