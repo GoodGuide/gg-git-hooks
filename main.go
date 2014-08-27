@@ -28,6 +28,16 @@ var (
 	}
 )
 
+// These are set at build-time via goxc
+var (
+	VERSION    string
+	BUILD_DATE string
+)
+
+func Version() string {
+	return fmt.Sprintf("%s - built %s", VERSION, BUILD_DATE)
+}
+
 // Installs small shell scripts for all the git hooks in the .git/hooks directory for the git repo in which this command is run.
 // TODO: Make this smarter about offering to overwrite an existing file when it already has the exact contents we want to write
 func InstallHookShims(hooksDir string, hooks []string) {
@@ -83,6 +93,8 @@ func SelfUpdate() {
 
 func initKingpin() {
 	var cmd *kingpin.CmdClause
+
+	kingpin.Version(Version())
 
 	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
 
