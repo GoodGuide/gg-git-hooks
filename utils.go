@@ -26,7 +26,7 @@ func writeHookShim(w io.Writer, hookName string) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = fmt.Fprintln(w, "set -e\n")
+	_, err = fmt.Fprint(w, "set -e\n\n")
 	if err != nil {
 		return
 	}

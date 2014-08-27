@@ -21,7 +21,7 @@ func WritePivotalStories(w io.Writer, config *Config) {
 		fmt.Fprintln(w, "#   goodguide-git-hooks update-stories\n#")
 	}
 
-	fmt.Fprintln(w, "#[no story]\n\n")
+	fmt.Fprint(w, "#[no story]\n\n\n")
 }
 
 // Runs just before opening the editor to get a message from the user. In this
