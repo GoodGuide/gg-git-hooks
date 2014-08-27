@@ -38,6 +38,9 @@ If you have Go installed, you can simply `go get` the project.
 go get github.com/GoodGuide/goodguide-git-hooks
 ```
 
+If not, there are [tagged releases with attached binaries on GitHub][releases]. Grab the
+build for your system, and just install the binary into your `~/.local/bin` or
+somewhere on your `PATH`
 ## How to use
 
 Once installed to your system, you can install the hooks to a particular local repo using the following from within the local repo in question:
@@ -77,3 +80,4 @@ goodguide-git-hooks update-pivotal-stories
 ```
 
 [pivotal-account-settings]: https://www.pivotaltracker.com/profile#api
+[releases]: //github.com/GoodGuide/goodguide-git-hooks/releases
