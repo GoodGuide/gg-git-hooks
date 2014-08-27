@@ -38,9 +38,8 @@ If you have Go installed, you can simply `go get` the project.
 go get github.com/GoodGuide/goodguide-git-hooks
 ```
 
-If not, there are [tagged releases with attached binaries on GitHub][releases]. Grab the
-build for your system, and just install the binary into your `~/.local/bin` or
-somewhere on your `PATH`
+If not, there are [tagged releases with attached binaries on GitHub][releases]. Grab the build for your system, and just install the binary into your `~/.local/bin` or somewhere on your `PATH`.
+
 ## How to use
 
 Once installed to your system, you can install the hooks to a particular local repo using the following from within the local repo in question:
@@ -78,6 +77,34 @@ The tracker-story-fetching is slow, and doesn't need to happen with every commit
 ```shell
 goodguide-git-hooks update-pivotal-stories
 ```
+
+## Development
+
+To work on this project, you need Go installed and set up properly, then you
+should just be able to `go build` as usual. There are no external dependencies.
+
+## Release process
+
+1. To build the project and create a release, you'll need `goxc` installed:
+    ```shell
+    go get github.com/laher/goxc
+    ```
+
+2. Bump the version, commit the new version, and push that to github. Then create a tag based on the version and push that:
+    ```shell
+    goxc bump
+    git commit -m 'Bump version [nostory]' -- .goxc.json
+    git push
+    goxc tag
+    git push --tags origin
+    ```
+
+3. Then, just run `goxc` to cross-compile for Linux/OSX and create tarballs in the `dist/` directory:
+    ```shell
+    goxc
+    ```
+
+4. Then, go to the releases page on github, and edit the release you just made by pushing a tag. Add the contents of the `dist/` directory as individual binary attachments to the release.
 
 [pivotal-account-settings]: https://www.pivotaltracker.com/profile#api
 [releases]: //github.com/GoodGuide/goodguide-git-hooks/releases
