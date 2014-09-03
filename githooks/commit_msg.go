@@ -60,6 +60,7 @@ func promptForTag(config *Config) (tagsToAdd []string) {
 	}
 	storiesBytes := bytes.Split(storiesCache, []byte{'\n'})
 
+	// FIXME: Store this as JSON so we don't have to do this line-scanning, trimming nonsense
 	var stories []string
 	for _, storyBytes := range storiesBytes {
 		s := bytes.Trim(storyBytes, "# ")
