@@ -166,6 +166,8 @@ func main() {
 		githooks.PrepareCommitMsg(*messageFilepath, *messageSource, *messageSourceCommit, config)
 
 	case "commit-msg":
-		githooks.CommitMsg(*messageFilepath)
+		config.StoriesCachePath = PivotalStoriesCacheFilePath()
+
+		githooks.CommitMsg(*messageFilepath, config)
 	}
 }
