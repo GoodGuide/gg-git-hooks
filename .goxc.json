@@ -9,11 +9,11 @@
 	],
 	"Os": "linux darwin",
 	"ResourcesInclude": "foo",
-	"PackageVersion": "0.0.1",
+	"PackageVersion": "0.0.2",
 	"TaskSettings": {
 		"archive-tar-gz": {
-			"platforms": "darwin linux",
-      "include-top-level-dir": "!darwin,!linux"
+			"include-top-level-dir": "!darwin,!linux",
+			"platforms": "darwin linux"
 		}
 	},
 	"ConfigVersion": "0.9"
