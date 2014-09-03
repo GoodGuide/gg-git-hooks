@@ -82,22 +82,22 @@ func addTagsToFile(file *os.File, tags []string) (success bool) {
 	file.Seek(0, 0) // rewind to start with
 	r, err := ioutil.ReadAll(io.Reader(file))
 	if err != nil {
-		log.Println("ERROR: %s", err)
+		log.Printf("ERROR: %s\n", err)
 		return
 	}
 	loc := bytes.Index(r, gitScissorMarker)
 	if loc < 0 {
 		if _, err := file.Seek(0, 2); err != nil { // seek to end of file
-			log.Println("ERROR: %s", err)
+			log.Printf("ERROR: %s\n", err)
 			return
 		}
 	} else {
 		if _, err := file.Seek(int64(loc), 0); err != nil { // seek to scissor line then truncate the file here
-			log.Println("ERROR: %s", err)
+			log.Printf("ERROR: %s\n", err)
 			return
 		}
 		if err := file.Truncate(int64(loc + 1)); err != nil {
-			log.Println("ERROR: %s", err)
+			log.Printf("ERROR: %s\n", err)
 			return
 		}
 	}
