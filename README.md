@@ -50,6 +50,10 @@ goodguide-git-hooks install
 
 Then, just use git normally.
 
+### Migrating from previous Ruby version of these hooks
+
+If you used the previous version of these tools, the recommended instructions were to make your repos' `.git/hooks` directory a symbolic link to the local clone of this repo. That is no longer necessary and that symlink should be deleted before you run `goodguide-git-hooks install`
+
 ### Integrating with existing hook logic
 
 The `install` subcommand simply installs small shims into the `.git/hooks`
