@@ -15,7 +15,7 @@ They're all intended to be project agnostic; configuration happens via Git's con
 
 - *prepare-commit-msg* &ndash; Git runs this after the pre-commit hook, and it is able to modify the template message that it gives to your `$GIT_EDITOR`. The implementation in this repo will augment the default message with a commented-out list of your active stories in Pivotal Tracker.
 
-- *commit-msg* &ndash; Git runs this, passing it the commit message you gave it, and the hook can abort the commit if it doesn't meet certain criteria. The implementation in this repo verifies that you have tagged your commit with a Tracker story ID.
+- *commit-msg* &ndash; Git runs this, passing it the commit message you gave it, and the hook can abort the commit if it doesn't meet certain criteria. The implementation in this repo verifies that you have tagged your commit with a Tracker story ID, and offers you a dialog to select one if not.
 
 ## Requirements
 
