@@ -23,6 +23,7 @@ func changedFiles(results chan<- *fileToCheck) {
 	if err != nil {
 		fmt.Printf("ERROR: git-diff-index: %s\n%s\n", err, out)
 		os.Exit(2)
+		// FIXME: This explodes for first commit
 	}
 
 	for _, chunk := range bytes.Split(out, []byte{'\x00'}) {

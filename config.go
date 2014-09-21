@@ -11,7 +11,7 @@ import (
 func PivotalStoriesCacheFilePath() string {
 	usr, _ := user.Current()
 	dir := usr.HomeDir
-	return path.Join(dir, ".gg-git-hooks-cache")
+	return path.Join(dir, ".gg-git-hooks-cache.json")
 }
 
 func GetAPIToken() string {

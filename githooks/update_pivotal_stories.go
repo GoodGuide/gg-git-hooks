@@ -1,28 +1,27 @@
 package githooks
 
 import (
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/GoodGuide/goodguide-git-hooks/pivotal"
 )
 
-func UpdatePivotalStories(config Config) {
-	file, err := os.Create(config.StoriesCachePath)
+func UpdatePivotalStories(config Config) (stories []pivotal.Story) {
+	stories, err := updatePivotalStoriesCache(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	log.Printf("Wrote %d stories to cache file at %s\n", len(stories), config.StoriesCachePath)
+	return stories
+}
 
-	stories, err := pivotal.MyStories(config.APIToken)
+func updatePivotalStoriesCache(config Config) (stories []pivotal.Story, err error) {
+	stories, err = pivotal.MyStories(config.APIToken)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
-
-	for _, story := range stories {
-		fmt.Fprintf(file, "#[#%d] %s\n", story.ID, story.Name)
+	if err = writeStoriesToCache(config.StoriesCachePath, stories); err != nil {
+		return
 	}
-
-	log.Printf("Wrote stories cache to %s\n", file.Name())
+	return stories, nil
 }

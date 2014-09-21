@@ -12,11 +12,13 @@ import (
 func WritePivotalStories(w io.Writer, config *Config) {
 	fmt.Fprintln(w, "\n# Uncomment one of your active stories, below:")
 
-	stories, err := ioutil.ReadFile(config.StoriesCachePath)
+	stories, err := loadStoriesFromCache(config.StoriesCachePath)
 	if err == nil {
-		w.Write(stories)
+		for _, s := range formatStoriesAsStrings(stories) {
+			fmt.Fprintf(w, "#%s\n", s)
+		}
 	} else {
-		fmt.Fprintln(w, "# There was a problem getting your Tracker Stories from ~/.gg-git-hooks-cache")
+		fmt.Fprintf(w, "# There was a problem getting your Tracker Stories from %s: %s\n", config.StoriesCachePath, err)
 		fmt.Fprintln(w, "# To (re)create/update the file:\n#")
 		fmt.Fprintln(w, "#   goodguide-git-hooks update-stories\n#")
 	}

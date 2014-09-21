@@ -135,6 +135,9 @@ func initKingpin() {
 func main() {
 	initKingpin()
 
+	config.APIToken = GetAPIToken()
+	config.StoriesCachePath = PivotalStoriesCacheFilePath()
+
 	switch kingpin.Parse() {
 	case "install":
 		gitDir, err := git.GitDir()
@@ -152,9 +155,6 @@ func main() {
 		SelfUpdate()
 
 	case "update-pivotal-stories":
-		config.APIToken = GetAPIToken()
-		config.StoriesCachePath = PivotalStoriesCacheFilePath()
-
 		githooks.UpdatePivotalStories(config)
 
 	case "pre-commit":

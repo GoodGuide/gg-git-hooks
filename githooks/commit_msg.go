@@ -10,7 +10,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/rtlong/selection_ui"
+	"github.com/GoodGuide/goodguide-git-hooks/pivotal"
+	"github.com/GoodGuide/goodguide-git-hooks/ui"
 )
 
 var (
@@ -21,7 +22,6 @@ var (
 // Runs after supplying a commit message, is meant to check the contents of the
 // message
 func CommitMsg(msgFilepath string, config Config) {
-	// fmt.Println(msgFilepath)
 	file, err := os.OpenFile(msgFilepath, os.O_RDWR, 0664)
 	if err != nil {
 		log.Fatalf("Error opening %s: %s\n", msgFilepath, err)
@@ -53,26 +53,38 @@ func CommitMsg(msgFilepath string, config Config) {
 }
 
 func promptForTag(config *Config) (tagsToAdd []string) {
-	storiesCache, err := ioutil.ReadFile(config.StoriesCachePath)
+	var (
+		stories       []pivotal.Story
+		story_strings []string
+	)
+	stories, err := loadStoriesFromCache(config.StoriesCachePath)
 	if err != nil {
-		log.Printf("Unable to prompt you to tag the commit. Error while reading Tracker stories cache. Try the update-pivotal-stories command. Error was: %s\n", err)
-		return
-	}
-	storiesBytes := bytes.Split(storiesCache, []byte{'\n'})
+		log.Printf("Error while loading stories from cache file %s: %s\n", config.StoriesCachePath, err)
+		log.Println("  Attempting to update stories now.")
 
-	// FIXME: Store this as JSON so we don't have to do this line-scanning, trimming nonsense
-	var stories []string
-	for _, storyBytes := range storiesBytes {
-		s := bytes.Trim(storyBytes, "# ")
-		if len(s) > 0 {
-			stories = append(stories, string(s))
-		}
+		stories = UpdatePivotalStories(*config)
 	}
-	stories = append(stories, "[no story]")
-	selections := selection_ui.Prompt(stories, "Pivotal Tracker stories to tag this commit")
-	for i, s := range selections {
+
+	prompt_ui := ui.SelectionUI{
+		OptionsFunc: func(forceReload bool) ([]string, error) {
+			var err error
+			if forceReload {
+				stories, err = updatePivotalStoriesCache(*config)
+				if err != nil {
+					return nil, err
+				}
+			}
+			story_strings = append(formatStoriesAsStrings(stories), "[no story]")
+			return story_strings, nil
+		},
+	}
+	if err := prompt_ui.Run(); err != nil {
+		log.Fatalf("Error!: %s\n", err)
+	}
+
+	for i, s := range prompt_ui.Selections {
 		if s {
-			tagsToAdd = append(tagsToAdd, stories[i])
+			tagsToAdd = append(tagsToAdd, story_strings[i])
 		}
 	}
 	return
