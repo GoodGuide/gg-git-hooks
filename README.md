@@ -16,7 +16,7 @@ They're all intended to be project agnostic; configuration happens via Git's con
 - *prepare-commit-msg* &ndash; Git runs this after the pre-commit hook, and it is able to modify the template message that it gives to your `$GIT_EDITOR`. The implementation in this repo will augment the default message with a commented-out list of your active stories in Pivotal Tracker.
 
 - *commit-msg* &ndash; Git runs this, passing it the commit message you gave it, and the hook can abort the commit if it doesn't meet certain criteria. The implementation in this repo verifies that you have tagged your commit with a Tracker story ID, and offers you a dialog to select one if not
-  
+
   ![Screenshot of story selection UI](http://f.cl.ly/items/0o3E3K0T2K05261y2g2g/Screen%20Shot%202014-09-03%20at%2010.58.25%20.png)
 
 ## Requirements
@@ -68,13 +68,9 @@ set -e
 exec goodguide-git-hooks prepare-commit-message $@
 ```
 
-You could easily just add the `goodguide-git-hooks CMD $@` command to your
-existing git hooks. (If you're not using `exec`, make sure you have `set -e` or
-manually check the exit status of this command so they can fail the commit if
-necessary.)
+You could easily just add the `goodguide-git-hooks CMD $@` command to your existing git hooks. (If you're not using `exec`, make sure you have `set -e` or manually check the exit status of this command so they can fail the commit if necessary.)
 
-Similarly, you can add any additional logic to the generated shims. They won't
-be rewritten by `goodguide-git-hooks` unless you tell it to.
+Similarly, you can add any additional logic to the generated shims. They won't be rewritten by `goodguide-git-hooks` unless you tell it to.
 
 ## Updating the cache of Tracker stories
 
@@ -86,8 +82,7 @@ goodguide-git-hooks update-pivotal-stories
 
 ## Development
 
-To work on this project, you need Go installed and set up properly, then you
-should just be able to `go build` as usual. There are no external dependencies.
+To work on this project, you need Go installed and set up properly, then you should just be able to `go build` as usual. There are no external dependencies.
 
 ## Release process
 
@@ -99,6 +94,7 @@ should just be able to `go build` as usual. There are no external dependencies.
 2. Bump the version, commit the new version, and push that to github. Then create a tag based on the version and push that:
     ```shell
     goxc bump
+    echo >> .goxc.json # put a newline at the end of the file because goxc fails to do so
     git commit -m 'Bump version [nostory]' -- .goxc.json
     git push
     goxc tag
