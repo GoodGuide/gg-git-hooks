@@ -34,13 +34,20 @@ They're all intended to be project agnostic; configuration happens via Git's con
 
 ## Installing
 
-If you have Go installed, you can simply `go get` the project.
+On a Mac with Homebrew, you may install via homebrew:
+
+```bash
+brew tap goodguide/tap
+brew install goodguide-git-hooks
+```
+
+If you prefer to build yourself and have Go installed, you can simply `go get` the project.
 
 ```shell
 go get github.com/GoodGuide/goodguide-git-hooks
 ```
 
-If not, there are [tagged releases with attached binaries on GitHub][releases]. Grab the build for your system, and just install the binary into your `~/.local/bin` or somewhere on your `PATH`.
+Either way, there are [tagged releases with attached binaries on GitHub][releases]. Grab the build for your system, and just install the binary into your `~/.local/bin` or somewhere on your `PATH`.
 
 ## How to use
 
