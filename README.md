@@ -77,7 +77,7 @@ exec goodguide-git-hooks prepare-commit-message $@
 
 You could easily just add the `goodguide-git-hooks CMD $@` command to your existing git hooks. (If you're not using `exec`, make sure you have `set -e` or manually check the exit status of this command so they can fail the commit if necessary.)
 
-Similarly, you can add any additional logic to the generated shims. They won't be rewritten by `goodguide-git-hooks` unless you tell it to.
+Similarly, you can add any additional logic to the generated shims. Existing hooks won't be rewritten by `goodguide-git-hooks install` unless you tell it to.
 
 ## Updating the cache of Tracker stories
 
