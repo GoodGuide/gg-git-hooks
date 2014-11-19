@@ -16,6 +16,8 @@ var (
 	messageFilepath     *string = new(string)
 	messageSourceCommit *string = new(string)
 	messageSource       *string = new(string)
+	clobber             *bool   = new(bool)
+	noclobber           *bool   = new(bool)
 	HOOKS                       = [8]string{
 		"commit-msg",
 		"prepare-commit-msg",
@@ -42,7 +44,7 @@ func Version() string {
 // TODO: Make this smarter about offering to overwrite an existing file when it already has the exact contents we want to write
 func InstallHookShims(hooksDir string, hooks []string) {
 	for _, hook := range hooks {
-		var confirmed bool
+		var confirmed bool = *clobber
 
 		hookPath := filepath.Join(hooksDir, hook)
 
@@ -61,9 +63,15 @@ func InstallHookShims(hooksDir string, hooks []string) {
 				log.Printf("[%s] ERROR: File already exists but is not a regular file!\n", hook)
 				continue
 			}
-			confirmed, err = confirm(fmt.Sprintf("[%s] File already exists. Overwrite?", hook))
-			if err != nil {
-				panic(err)
+			if *noclobber {
+				confirmed = false
+			} else if *clobber {
+				confirmed = true
+			} else {
+				confirmed, err = confirm(fmt.Sprintf("[%s] File already exists. Overwrite?", hook))
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 
@@ -96,7 +104,9 @@ func initKingpin() {
 
 	kingpin.Version(Version())
 
-	kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
+	cmd = kingpin.Command("install", "Install scripts at .git/hooks/* for each git-hook provided by this tool")
+	cmd.Flag("force", "Don't ask to overwrite target file, always clobber").BoolVar(clobber)
+	cmd.Flag("noclobber", "Don't ask to overwrite target file, always skip").BoolVar(noclobber)
 
 	kingpin.Command("self-update", "Check for updates of goodguide-git-hooks and download the newer version if available")
 
