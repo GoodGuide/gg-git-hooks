@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"os/user"
 	"path"
 
@@ -9,6 +10,9 @@ import (
 )
 
 func PivotalStoriesCacheFilePath() string {
+	if custom := os.Getenv("GIT_HOOKS_CACHE"); custom != "" {
+		return custom
+	}
 	usr, _ := user.Current()
 	dir := usr.HomeDir
 	return path.Join(dir, ".gg-git-hooks-cache.json")
