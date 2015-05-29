@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/kardianos/osext"
 	"io"
 	"os"
 )
@@ -30,6 +31,14 @@ func writeHookShim(w io.Writer, hookName string) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = fmt.Fprintf(w, "exec goodguide-git-hooks %s $@\n", hookName)
+	binaryPath, err := osext.ExecutableFolder()
+	if err != nil {
+		return
+	}
+	_, err = fmt.Fprintf(w, `PATH="$PATH:%s"`+"\n", binaryPath)
+	if err != nil {
+		return
+	}
+	_, err = fmt.Fprintf(w, "exec %s %s $@\n", os.Args[0], hookName)
 	return
 }
