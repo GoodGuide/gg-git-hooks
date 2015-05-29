@@ -9,7 +9,7 @@
 	],
 	"Os": "linux darwin",
 	"ResourcesInclude": "foo",
-	"PackageVersion": "0.0.5",
+	"PackageVersion": "0.0.6",
 	"TaskSettings": {
 		"archive-tar-gz": {
 			"include-top-level-dir": "!darwin,!linux",
