@@ -29,6 +29,7 @@ func (s *SelectionUI) loadOptions(forceReload bool) {
 		data, err := s.OptionsFunc(forceReload)
 		if err == nil {
 			s.options = data
+			s.setCursor(0)
 			s.Selections = make([]bool, len(s.options))
 			s.errorMessage = ""
 		} else {
