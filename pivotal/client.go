@@ -44,7 +44,7 @@ func MyStories(apiToken string) (stories []Story, err error) {
 	me, err := c.Me()
 
 	params := paramset{
-		"filter": "mywork:" + me.Username,
+		"filter": "mywork:" + me.Username + " -state:delivered",
 	}
 
 	results := make(chan Story)
