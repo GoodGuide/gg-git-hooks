@@ -100,17 +100,12 @@ To work on this project, you need Go installed and set up properly, then you sho
 
 2. Bump the version, commit the new version, and push that to github. Then create a tag based on the version and push that:
     ```shell
-    goxc bump
-    echo >> .goxc.json # put a newline at the end of the file because goxc fails to do so
-    git commit -m 'Bump version [nostory]' -- .goxc.json
-    git push
-    goxc tag
-    git push --tags origin
+    make bump
     ```
 
 3. Then, just run `goxc` to cross-compile for Linux/OSX and create tarballs in the `dist/` directory:
     ```shell
-    goxc
+    make build
     ```
 
 4. Then, go to the releases page on github, and edit the release you just made by pushing a tag. Add the contents of the `dist/` directory as individual binary attachments to the release.
