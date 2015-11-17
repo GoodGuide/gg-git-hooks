@@ -1,3 +1,6 @@
+build:
+	goxc
+
 bump:
 	goxc bump
 	echo >> .goxc.json # put a newline at the end of the file because goxc fails to do so
@@ -5,6 +8,3 @@ bump:
 	git push
 	goxc tag
 	git push --tags origin
-
-build:
-	goxc

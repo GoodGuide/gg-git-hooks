@@ -19,6 +19,9 @@ func PivotalStoriesCacheFilePath() string {
 }
 
 func GetAPIToken() string {
+	if str := os.Getenv("PIVOTAL_API_TOKEN"); str != "" {
+		return str
+	}
 	str, err := git.ConfigGetString("pivotal.api-token")
 	if err != nil {
 		log.Fatal("Can't find Pivotal API Token. Set it in git-config at the pivotal.api-token key.", err)
