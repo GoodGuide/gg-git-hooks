@@ -3,7 +3,7 @@ package githooks
 import (
 	"log"
 
-	"github.com/GoodGuide/goodguide-git-hooks/pivotal"
+	"github.com/goodguide/goodguide-git-hooks/pivotal"
 )
 
 func UpdatePivotalStories(config Config) (stories []pivotal.Story) {

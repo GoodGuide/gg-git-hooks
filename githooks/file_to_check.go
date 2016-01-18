@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"regexp"
 
-	"github.com/GoodGuide/goodguide-git-hooks/git"
+	"github.com/goodguide/goodguide-git-hooks/git"
 )
 
 type fileToCheck struct {

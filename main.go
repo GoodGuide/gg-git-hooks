@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/GoodGuide/goodguide-git-hooks/git"
-	"github.com/GoodGuide/goodguide-git-hooks/githooks"
+	"github.com/goodguide/goodguide-git-hooks/git"
+	"github.com/goodguide/goodguide-git-hooks/githooks"
 	kingpin "gopkg.in/alecthomas/kingpin.v1"
 )
 

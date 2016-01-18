@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path"
 
-	"github.com/GoodGuide/goodguide-git-hooks/git"
+	"github.com/goodguide/goodguide-git-hooks/git"
 )
 
 func PivotalStoriesCacheFilePath() string {

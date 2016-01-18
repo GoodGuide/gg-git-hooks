@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/GoodGuide/goodguide-git-hooks/pivotal"
+	"github.com/goodguide/goodguide-git-hooks/pivotal"
 )
 
 func indentLines(b []byte, level int) (out []byte) {

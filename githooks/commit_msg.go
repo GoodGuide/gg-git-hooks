@@ -10,8 +10,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/GoodGuide/goodguide-git-hooks/pivotal"
-	"github.com/GoodGuide/goodguide-git-hooks/ui"
+	"github.com/goodguide/goodguide-git-hooks/pivotal"
+	"github.com/goodguide/goodguide-git-hooks/ui"
 )
 
 var (

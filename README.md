@@ -44,7 +44,7 @@ brew install goodguide-git-hooks
 If you prefer to build yourself and have Go installed, you can simply `go get` the project.
 
 ```shell
-go get github.com/GoodGuide/goodguide-git-hooks
+go get github.com/goodguide/goodguide-git-hooks
 ```
 
 Either way, there are [tagged releases with attached binaries on GitHub][releases]. Grab the build for your system, and just install the binary into your `~/.local/bin` or somewhere on your `PATH`.
@@ -110,7 +110,7 @@ To work on this project, you need Go installed and set up properly, then you sho
 
 4. Then, go to the releases page on github, and edit the release you just made by pushing a tag. Add the contents of the `dist/` directory as individual binary attachments to the release.
 
-5. Edit the `goodguide-git-hooks` formula in [GoodGuide/homebrew-tap](//github.com/GoodGuide/homebrew-tap) with the new version and SHA1 of the `darwin_amd64` archive.
+5. Edit the `goodguide-git-hooks` formula in [goodguide/homebrew-tap](//github.com/goodguide/homebrew-tap) with the new version and SHA1 of the `darwin_amd64` archive.
 
 [pivotal-account-settings]: https://www.pivotaltracker.com/profile#api
-[releases]: //github.com/GoodGuide/goodguide-git-hooks/releases
+[releases]: //github.com/goodguide/goodguide-git-hooks/releases
