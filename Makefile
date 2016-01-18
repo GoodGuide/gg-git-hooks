@@ -1,5 +1,5 @@
 build:
-	goxc
+	docker run -it --rm -v $(PWD):/go/src/github.com/goodguide/goodguide-git-hooks -w /go/src/github.com/goodguide/goodguide-git-hooks multiarch/goxc goxc -env=GO15VENDOREXPERIMENT=1
 
 bump:
 	goxc bump

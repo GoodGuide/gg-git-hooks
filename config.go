@@ -13,7 +13,10 @@ func PivotalStoriesCacheFilePath() string {
 	if custom := os.Getenv("GIT_HOOKS_CACHE"); custom != "" {
 		return custom
 	}
-	usr, _ := user.Current()
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
 	dir := usr.HomeDir
 	return path.Join(dir, ".gg-git-hooks-cache.json")
 }
