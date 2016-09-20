@@ -1,5 +1,5 @@
 build:
-	docker run -it --rm -v $(PWD):/go/src/github.com/goodguide/goodguide-git-hooks -w /go/src/github.com/goodguide/goodguide-git-hooks multiarch/goxc goxc -env=GO15VENDOREXPERIMENT=1
+	docker run -it --rm -v $(PWD):/go/src/github.com/goodguide/goodguide-git-hooks -w /go/src/github.com/goodguide/goodguide-git-hooks multiarch/goxc bash -c 'go get -v . && goxc -env=GO15VENDOREXPERIMENT=1'
 
 bump:
 	goxc bump
@@ -8,3 +8,6 @@ bump:
 	git push
 	goxc tag
 	git push --tags origin
+
+sign:
+	bash -x -c 'find dist/$$(jq -r .PackageVersion < .goxc.json) -name "*.tar.gz" | xargs -n1 gpg -a -b'
