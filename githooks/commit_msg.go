@@ -74,14 +74,14 @@ func promptForTag(config *Config) (tagsToAdd []string) {
 					return nil, err
 				}
 			}
-			story_strings = append(formatStoriesAsStrings(stories), "[no story]")
-			return story_strings, nil
+			return append(formatStoriesAsStringsForUI(stories), "[no story]"), nil
 		},
 	}
 	if err := prompt_ui.Run(); err != nil {
 		log.Fatalf("Error!: %s\n", err)
 	}
 
+	story_strings = append(formatStoriesAsStrings(stories), "[no story]")
 	for i, s := range prompt_ui.Selections {
 		if s {
 			tagsToAdd = append(tagsToAdd, story_strings[i])

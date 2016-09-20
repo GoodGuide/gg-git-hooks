@@ -74,11 +74,17 @@ mainloop:
 
 			} else {
 				switch ev.Ch {
-				case 'k':
+				case 'k', 'p':
 					s.moveCursorUp()
 
-				case 'j':
+				case 'j', 'n':
 					s.moveCursorDown()
+
+				case 'g':
+					s.moveCursorToStart()
+
+				case 'G':
+					s.moveCursorToEnd()
 
 				case 'r':
 					s.loadOptions(true)
@@ -119,6 +125,14 @@ func (s *SelectionUI) deinit() {
 
 func (s *SelectionUI) setCursor(rowIdx int) {
 	s.cursorIdx = rowIdx
+}
+
+func (s *SelectionUI) moveCursorToStart() {
+	s.setCursor(0)
+}
+
+func (s *SelectionUI) moveCursorToEnd() {
+	s.setCursor(len(s.options)-1)
 }
 
 func (s *SelectionUI) moveCursorUp() {

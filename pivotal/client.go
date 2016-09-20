@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
+	"time"
 )
 
 const BASE_URL string = "https://www.pivotaltracker.com/services/v5/"
@@ -37,6 +38,8 @@ type Project struct {
 type Story struct {
 	ID   uint64
 	Name string
+	CurrentState string `json:"current_state"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func MyStories(apiToken string) (stories []Story, err error) {
@@ -147,7 +150,12 @@ func parseResponse(resp *http.Response, data interface{}) (err error) {
 		return
 	}
 
+	// r := io.TeeReader(resp.Body, os.Stdout)
+	// defer func() {
+	// 	fmt.Println()
+	// }()
 	d := json.NewDecoder(resp.Body)
+
 	err = d.Decode(data)
 	if err != nil {
 		return

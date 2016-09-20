@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/goodguide/goodguide-git-hooks/pivotal"
 )
@@ -38,6 +39,7 @@ func loadStoriesFromCache(filepath string) (stories []pivotal.Story, err error) 
 	err = d.Decode(&stories)
 	return
 }
+
 func writeStoriesToCache(filepath string, stories []pivotal.Story) (err error) {
 	var f *os.File
 	if f, err = os.Create(filepath); err != nil {
@@ -49,10 +51,19 @@ func writeStoriesToCache(filepath string, stories []pivotal.Story) (err error) {
 	err = d.Encode(stories)
 	return
 }
+
 func formatStoriesAsStrings(stories []pivotal.Story) (strings []string) {
 	strings = make([]string, len(stories))
 	for i, s := range stories {
 		strings[i] = fmt.Sprintf("[#%d] %s", s.ID, s.Name)
+	}
+	return
+}
+
+func formatStoriesAsStringsForUI(stories []pivotal.Story) (strings []string) {
+	strings = make([]string, len(stories))
+	for i, s := range stories {
+		strings[i] = fmt.Sprintf("[#%d] %s (%s - updated %s)", s.ID, s.Name, s.CurrentState, s.UpdatedAt.Format(time.RFC822))
 	}
 	return
 }

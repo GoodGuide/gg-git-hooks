@@ -1,11 +1,14 @@
 package git
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func ConfigGetString(key string) (string, error) {
 	out, err := Command("config", "--get", key)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s", out), nil
+	return strings.TrimSpace(fmt.Sprintf("%s", out)), nil
 }
