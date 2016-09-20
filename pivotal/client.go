@@ -36,10 +36,10 @@ type Project struct {
 }
 
 type Story struct {
-	ID   uint64
-	Name string
-	CurrentState string `json:"current_state"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID           uint64
+	Name         string
+	CurrentState string    `json:"current_state"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func MyStories(apiToken string) (stories []Story, err error) {

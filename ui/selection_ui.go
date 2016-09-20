@@ -132,7 +132,7 @@ func (s *SelectionUI) moveCursorToStart() {
 }
 
 func (s *SelectionUI) moveCursorToEnd() {
-	s.setCursor(len(s.options)-1)
+	s.setCursor(len(s.options) - 1)
 }
 
 func (s *SelectionUI) moveCursorUp() {
